@@ -4,14 +4,9 @@ from io import BytesIO
 from streamlit_lottie import st_lottie
 import json
 
-# Fallback: if st.set_query_params isn't defined, use st.experimental_set_query_params
-if not hasattr(st, "set_query_params"):
-    st.set_query_params = st.experimental_set_query_params
-
-# Configuração da página
+# Set page configuration
 st.set_page_config(page_title="Editor de Contrato", page_icon="✍️", layout="wide")
 
-# Função para carregar animações Lottie
 def load_lottiefile(filepath: str):
     try:
         with open(filepath, "r") as f:
@@ -19,10 +14,10 @@ def load_lottiefile(filepath: str):
     except Exception:
         return None
 
-# CSS customizado para a barra superior e layout geral
+# CSS for a professional navbar and layout
 custom_css = """
 <style>
-/* Barra de navegação fixa no topo */
+/* Navbar fixed at the top */
 .navbar {
     position: fixed;
     top: 0;
@@ -60,13 +55,13 @@ custom_css = """
     color: #ff4081;
 }
 
-/* Conteúdo principal: separa do cabeçalho fixo */
+/* Content pushed below navbar */
 .content {
     margin-top: 80px;
     padding: 20px 30px;
 }
 
-/* Botão primário customizado */
+/* Custom primary button */
 div.stButton > button {
     background-color: #ff4081;
     color: #ffffff;
@@ -84,7 +79,7 @@ div.stButton > button:hover {
 """
 st.markdown(custom_css, unsafe_allow_html=True)
 
-# Barra de navegação superior (header)
+# Navbar HTML
 nav_bar = """
 <div class="navbar">
   <div class="logo">Editor de Contrato</div>
@@ -97,45 +92,57 @@ nav_bar = """
 """
 st.markdown(nav_bar, unsafe_allow_html=True)
 
-# Sistema simples de navegação via query parameters
-query_params = st.query_params
-current_page = query_params.get("page", ["home"])[0]
+# Initialize current page in session state using st.query_params
+if "page" not in st.session_state:
+    params = st.query_params
+    st.session_state.page = params.get("page", ["home"])[0] if params and "page" in params else "home"
+
+current_page = st.session_state.page
+
+# Navigation callbacks update session state and query params
+def go_to_home():
+    st.session_state.page = "home"
+    st.set_query_params(page="home")
+
+def go_to_editor():
+    st.session_state.page = "editor"
+    st.set_query_params(page="editor")
+
+def go_to_about():
+    st.session_state.page = "about"
+    st.set_query_params(page="about")
 
 st.markdown('<div class="content">', unsafe_allow_html=True)
 
 if current_page == "home":
-    # Página Inicial
     st.title("Bem-vindo ao Editor de Contratos")
     st.write("Experimente uma experiência minimalista, rápida e profissional para editar seus contratos de forma intuitiva.")
     
-    # Exibir animação Lottie (caso disponível)
+    # Display Lottie animation if available
     animation = load_lottiefile("assets/animation.json")
     if animation:
         st_lottie(animation, height=300)
     else:
         st.info("Animação não encontrada.")
     
-    st.button("Comece Agora", on_click=lambda: st.set_query_params(page="editor"))
+    st.button("Comece Agora", on_click=go_to_editor)
 
 elif current_page == "editor":
-    # Página do Editor de Contrato
     st.title("Editor de Contrato")
     uploaded_file = st.file_uploader("Faça o upload do arquivo .docx", type="docx")
     
     if uploaded_file:
         doc = Document(uploaded_file)
         
-        # Campos para preenchimento
+        # Input fields for placeholders
         nome_empresa = st.text_input("Nome da Empresa")
         nome_fornecedor = st.text_input("Nome do Fornecedor")
         
         if st.button("Gerar Documento"):
-            # Substituir os placeholders pelo texto informado
             for para in doc.paragraphs:
                 para.text = para.text.replace("{nome_empresa}", nome_empresa)
                 para.text = para.text.replace("{nome_fornecedor}", nome_fornecedor)
             
-            # Criar documento editado em memória
             output = BytesIO()
             doc.save(output)
             output.seek(0)
@@ -148,11 +155,10 @@ elif current_page == "editor":
             )
 
 elif current_page == "about":
-    # Página Sobre
     st.title("Sobre o Editor de Contratos")
     st.write("""
     Este sistema foi desenvolvido para facilitar a personalização de contratos de forma rápida e intuitiva.
-
+    
     **Recursos Principais:**
     - Upload de documentos `.docx`
     - Substituição dinâmica de placeholders
