@@ -140,12 +140,26 @@ st.markdown("""
       font-size: 18px;
       color: #666;
     }
+    .back-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      margin-top: 20px;
+    }
+    .back-button:hover {
+      background-color: #333;
+      transform: scale(1.05);
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# Configuração da navegação entre páginas
-st.sidebar.title("Navegação")
-page = st.sidebar.radio("Ir para", ["Home", "Editor de Contrato"])
+# Verifica a página atual com base na query string
+page = st.experimental_get_query_params().get("page", ["Home"])[0]
 
 if page == "Home":
     # Navbar
@@ -166,8 +180,7 @@ if page == "Home":
           <div class="background-animation"></div>
           <h1>Bem-vindo ao PremiumApp</h1>
           <p>Uma experiência minimalista e intuitiva com design premium e animações elegantes para otimizar sua produtividade.</p>
-          <button class="cta-button" onclick="document.getElementById('editor-link').click()">Comece Agora</button>
-          <a id="editor-link" href="?page=Editor de Contrato" style="display:none;"></a>
+          <button class="cta-button" onclick="window.location.href='?page=Editor de Contrato'">Comece Agora</button>
         </section>
         """, unsafe_allow_html=True)
 
@@ -230,5 +243,7 @@ elif page == "Editor de Contrato":
                     file_name="contrato_editado.docx",
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 )
+
+    st.markdown('<button class="back-button" onclick="window.location.href=\'?page=Home\'">Voltar para Home</button>', unsafe_allow_html=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
