@@ -93,8 +93,8 @@ nav_bar = """
 """
 st.markdown(nav_bar, unsafe_allow_html=True)
 
-# Sistema simples de navegação via query parameters
-query_params = st.experimental_get_query_params()
+# Sistema simples de navegação via query parameters (usando st.query_params e st.set_query_params)
+query_params = st.query_params
 current_page = query_params.get("page", ["home"])[0]
 
 st.markdown('<div class="content">', unsafe_allow_html=True)
@@ -111,7 +111,7 @@ if current_page == "home":
     else:
         st.info("Animação não encontrada.")
     
-    st.button("Comece Agora", on_click=lambda: st.experimental_set_query_params(page="editor"))
+    st.button("Comece Agora", on_click=lambda: st.set_query_params(page="editor"))
 
 elif current_page == "editor":
     # Página do Editor de Contrato
