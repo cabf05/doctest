@@ -143,86 +143,92 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Navbar
-st.markdown("""
-    <header class="navbar">
-      <div class="logo">PremiumApp</div>
-      <nav>
-        <a href="#home">Home</a>
-        <a href="#features">Recursos</a>
-        <a href="#contact">Contato</a>
-      </nav>
-    </header>
-    """, unsafe_allow_html=True)
+# Configuração da navegação entre páginas
+st.sidebar.title("Navegação")
+page = st.sidebar.radio("Ir para", ["Home", "Editor de Contrato"])
 
-# Hero Section
-st.markdown("""
-    <section class="hero" id="home">
-      <div class="background-animation"></div>
-      <h1>Bem-vindo ao PremiumApp</h1>
-      <p>Uma experiência minimalista e intuitiva com design premium e animações elegantes para otimizar sua produtividade.</p>
-      <button class="cta-button">Comece Agora</button>
-    </section>
-    """, unsafe_allow_html=True)
+if page == "Home":
+    # Navbar
+    st.markdown("""
+        <header class="navbar">
+          <div class="logo">PremiumApp</div>
+          <nav>
+            <a href="#home">Home</a>
+            <a href="#features">Recursos</a>
+            <a href="#contact">Contato</a>
+          </nav>
+        </header>
+        """, unsafe_allow_html=True)
 
-# Features Section
-st.markdown("""
-    <section class="features" id="features">
-      <div class="feature">
-        <h2>Design Minimalista</h2>
-        <p>Interface limpa e organizada que prioriza a simplicidade e a clareza, eliminando distrações.</p>
-      </div>
-      <div class="feature">
-        <h2>Experiência Intuitiva</h2>
-        <p>Navegue de forma simples e eficiente com uma estrutura pensada para a melhor usabilidade.</p>
-      </div>
-      <div class="feature">
-        <h2>Animações Elegantes</h2>
-        <p>Transições suaves e efeitos animados que agregam dinamismo sem comprometer a simplicidade.</p>
-      </div>
-    </section>
-    """, unsafe_allow_html=True)
+    # Hero Section
+    st.markdown("""
+        <section class="hero" id="home">
+          <div class="background-animation"></div>
+          <h1>Bem-vindo ao PremiumApp</h1>
+          <p>Uma experiência minimalista e intuitiva com design premium e animações elegantes para otimizar sua produtividade.</p>
+          <button class="cta-button" onclick="document.getElementById('editor-link').click()">Comece Agora</button>
+          <a id="editor-link" href="?page=Editor de Contrato" style="display:none;"></a>
+        </section>
+        """, unsafe_allow_html=True)
 
-# Contact Section
-st.markdown("""
-    <section class="contact" id="contact">
-      <h2>Contato</h2>
-      <p>Entre em contato para saber mais sobre nossas soluções premium.</p>
-    </section>
-    """, unsafe_allow_html=True)
+    # Features Section
+    st.markdown("""
+        <section class="features" id="features">
+          <div class="feature">
+            <h2>Design Minimalista</h2>
+            <p>Interface limpa e organizada que prioriza a simplicidade e a clareza, eliminando distrações.</p>
+          </div>
+          <div class="feature">
+            <h2>Experiência Intuitiva</h2>
+            <p>Navegue de forma simples e eficiente com uma estrutura pensada para a melhor usabilidade.</p>
+          </div>
+          <div class="feature">
+            <h2>Animações Elegantes</h2>
+            <p>Transições suaves e efeitos animados que agregam dinamismo sem comprometer a simplicidade.</p>
+          </div>
+        </section>
+        """, unsafe_allow_html=True)
 
-# Conteúdo principal do aplicativo
-st.markdown("<div class='content'>", unsafe_allow_html=True)
+    # Contact Section
+    st.markdown("""
+        <section class="contact" id="contact">
+          <h2>Contato</h2>
+          <p>Entre em contato para saber mais sobre nossas soluções premium.</p>
+        </section>
+        """, unsafe_allow_html=True)
 
-st.title("Editor de Contrato")
+elif page == "Editor de Contrato":
+    st.markdown("<div class='content'>", unsafe_allow_html=True)
 
-st.markdown('<i class="icon">📄</i> Faça o upload do arquivo .docx', unsafe_allow_html=True)
-uploaded_file = st.file_uploader("", type="docx")
+    st.title("Editor de Contrato")
 
-if uploaded_file:
-    doc = Document(uploaded_file)
+    st.markdown('<i class="icon">📄</i> Faça o upload do arquivo .docx', unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("", type="docx")
 
-    nome_empresa = st.text_input("Nome da Empresa")
-    nome_fornecedor = st.text_input("Nome do Fornecedor")
+    if uploaded_file:
+        doc = Document(uploaded_file)
 
-    if st.button("Gerar Documento"):
-        if not nome_empresa or not nome_fornecedor:
-            st.error("Por favor, preencha todos os campos.")
-        else:
-            for para in doc.paragraphs:
-                para.text = para.text.replace("{nome_empresa}", nome_empresa)
-                para.text = para.text.replace("{nome_fornecedor}", nome_fornecedor)
+        nome_empresa = st.text_input("Nome da Empresa")
+        nome_fornecedor = st.text_input("Nome do Fornecedor")
 
-            output = BytesIO()
-            doc.save(output)
-            output.seek(0)
+        if st.button("Gerar Documento"):
+            if not nome_empresa or not nome_fornecedor:
+                st.error("Por favor, preencha todos os campos.")
+            else:
+                for para in doc.paragraphs:
+                    para.text = para.text.replace("{nome_empresa}", nome_empresa)
+                    para.text = para.text.replace("{nome_fornecedor}", nome_fornecedor)
 
-            st.success("Documento gerado com sucesso!")
-            st.download_button(
-                label="Baixar Documento Modificado",
-                data=output,
-                file_name="contrato_editado.docx",
-                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            )
+                output = BytesIO()
+                doc.save(output)
+                output.seek(0)
 
-st.markdown("</div>", unsafe_allow_html=True)
+                st.success("Documento gerado com sucesso!")
+                st.download_button(
+                    label="Baixar Documento Modificado",
+                    data=output,
+                    file_name="contrato_editado.docx",
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                )
+
+    st.markdown("</div>", unsafe_allow_html=True)
