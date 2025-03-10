@@ -159,8 +159,8 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # Verifica a página atual com base na query string
-query_params = st.experimental_get_query_params()
-page = query_params.get("page", ["Home"])[0]
+query_params = st.query_params
+page = query_params.get("page", "Home")
 
 if page == "Home":
     # Navbar
