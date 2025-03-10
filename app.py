@@ -4,7 +4,7 @@ from io import BytesIO
 from streamlit_lottie import st_lottie
 import json
 
-# Set page configuration
+# Configuração da página
 st.set_page_config(page_title="Editor de Contrato", page_icon="✍️", layout="wide")
 
 def load_lottiefile(filepath: str):
@@ -14,10 +14,10 @@ def load_lottiefile(filepath: str):
     except Exception:
         return None
 
-# CSS for a professional navbar and layout
+# CSS customizado para a navbar e layout geral
 custom_css = """
 <style>
-/* Navbar fixed at the top */
+/* Navbar fixa no topo */
 .navbar {
     position: fixed;
     top: 0;
@@ -55,13 +55,13 @@ custom_css = """
     color: #ff4081;
 }
 
-/* Content pushed below navbar */
+/* Conteúdo principal, com espaçamento para o cabeçalho */
 .content {
     margin-top: 80px;
     padding: 20px 30px;
 }
 
-/* Custom primary button */
+/* Botão primário customizado */
 div.stButton > button {
     background-color: #ff4081;
     color: #ffffff;
@@ -92,33 +92,34 @@ nav_bar = """
 """
 st.markdown(nav_bar, unsafe_allow_html=True)
 
-# Initialize current page in session state using st.query_params
+# Inicializa a página atual na session state a partir dos query parameters
 if "page" not in st.session_state:
     params = st.query_params
     st.session_state.page = params.get("page", ["home"])[0] if params and "page" in params else "home"
 
 current_page = st.session_state.page
 
-# Navigation callbacks update session state and query params
+# Funções de navegação que atualizam a session state e a URL
 def go_to_home():
     st.session_state.page = "home"
-    st.set_query_params(page="home")
+    st.query_params = {"page": "home"}
 
 def go_to_editor():
     st.session_state.page = "editor"
-    st.set_query_params(page="editor")
+    st.query_params = {"page": "editor"}
 
 def go_to_about():
     st.session_state.page = "about"
-    st.set_query_params(page="about")
+    st.query_params = {"page": "about"}
 
 st.markdown('<div class="content">', unsafe_allow_html=True)
 
 if current_page == "home":
+    # Página inicial
     st.title("Bem-vindo ao Editor de Contratos")
     st.write("Experimente uma experiência minimalista, rápida e profissional para editar seus contratos de forma intuitiva.")
     
-    # Display Lottie animation if available
+    # Exibe animação Lottie, se disponível
     animation = load_lottiefile("assets/animation.json")
     if animation:
         st_lottie(animation, height=300)
@@ -128,13 +129,14 @@ if current_page == "home":
     st.button("Comece Agora", on_click=go_to_editor)
 
 elif current_page == "editor":
+    # Página do editor de contratos
     st.title("Editor de Contrato")
     uploaded_file = st.file_uploader("Faça o upload do arquivo .docx", type="docx")
     
     if uploaded_file:
         doc = Document(uploaded_file)
         
-        # Input fields for placeholders
+        # Campos para preenchimento
         nome_empresa = st.text_input("Nome da Empresa")
         nome_fornecedor = st.text_input("Nome do Fornecedor")
         
@@ -155,6 +157,7 @@ elif current_page == "editor":
             )
 
 elif current_page == "about":
+    # Página Sobre
     st.title("Sobre o Editor de Contratos")
     st.write("""
     Este sistema foi desenvolvido para facilitar a personalização de contratos de forma rápida e intuitiva.
