@@ -4,6 +4,10 @@ from io import BytesIO
 from streamlit_lottie import st_lottie
 import json
 
+# Fallback: if st.set_query_params isn't defined, use st.experimental_set_query_params
+if not hasattr(st, "set_query_params"):
+    st.set_query_params = st.experimental_set_query_params
+
 # Configuração da página
 st.set_page_config(page_title="Editor de Contrato", page_icon="✍️", layout="wide")
 
@@ -12,7 +16,7 @@ def load_lottiefile(filepath: str):
     try:
         with open(filepath, "r") as f:
             return json.load(f)
-    except Exception as e:
+    except Exception:
         return None
 
 # CSS customizado para a barra superior e layout geral
@@ -93,7 +97,7 @@ nav_bar = """
 """
 st.markdown(nav_bar, unsafe_allow_html=True)
 
-# Sistema simples de navegação via query parameters (usando st.query_params e st.set_query_params)
+# Sistema simples de navegação via query parameters
 query_params = st.query_params
 current_page = query_params.get("page", ["home"])[0]
 
