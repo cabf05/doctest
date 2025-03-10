@@ -181,7 +181,7 @@ if page == "Home":
           <div class="background-animation"></div>
           <h1>Bem-vindo ao PremiumApp</h1>
           <p>Uma experiência minimalista e intuitiva com design premium e animações elegantes para otimizar sua produtividade.</p>
-          <button class="cta-button" onclick="window.location.href='?page=Editor de Contrato'">Comece Agora</button>
+          <a href="?page=Editor%20de%20Contrato" class="cta-button">Comece Agora</a>
         </section>
         """, unsafe_allow_html=True)
 
@@ -245,6 +245,6 @@ elif page == "Editor de Contrato":
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 )
 
-    st.markdown('<button class="back-button" onclick="window.location.href=\'?page=Home\'">Voltar para Home</button>', unsafe_allow_html=True)
+    st.markdown('<a href="?page=Home" class="back-button">Voltar para Home</a>', unsafe_allow_html=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
