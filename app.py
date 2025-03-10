@@ -1,118 +1,116 @@
 import streamlit as st
 from docx import Document
 from io import BytesIO
-import json
 from streamlit_lottie import st_lottie
+import json
 
+# Configuração da Página
+st.set_page_config(page_title="Editor de Contrato", page_icon="✍️", layout="wide")
+
+# Função para carregar animações Lottie
 def load_lottiefile(filepath: str):
-    with open(filepath, "r") as f:
-        return json.load(f)
+    try:
+        with open(filepath, "r") as f:
+            return json.load(f)
+    except:
+        return None
 
-st.set_page_config(page_title="Editor de Contrato", layout="centered", initial_sidebar_state="collapsed")
+# ---- BARRA SUPERIOR ----
+st.markdown("""
+    <style>
+        .header {
+            background-color: #1E1E1E;
+            padding: 10px;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .menu-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .menu-button {
+            background-color: transparent;
+            color: white;
+            border: none;
+            font-size: 18px;
+            margin: 0 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .menu-button:hover {
+            color: #FF4081;
+        }
+    </style>
+    <div class='header'>Editor de Contrato</div>
+    <div class='menu-container'>
+        <button class='menu-button' onclick="window.location.href='/?page=home'">🏠 Início</button>
+        <button class='menu-button' onclick="window.location.href='/?page=editor'">✍️ Editor</button>
+        <button class='menu-button' onclick="window.location.href='/?page=sobre'">ℹ️ Sobre</button>
+    </div>
+""", unsafe_allow_html=True)
 
-# Injeção de CSS customizado para um design minimalista e animações sutis
-custom_css = """
-<style>
-/* Estilo geral */
-body {
-    font-family: 'Helvetica Neue', sans-serif;
-    background-color: #f8f9fa;
-}
+# ---- SISTEMA DE NAVEGAÇÃO ----
+query_params = st.experimental_get_query_params()
+page = query_params.get("page", ["home"])[0]
 
-/* Título */
-h1 {
-    font-size: 2.5rem;
-    color: #343a40;
-    text-align: center;
-    margin-bottom: 2rem;
-}
+if page == "home":
+    # ---- PÁGINA INICIAL ----
+    st.title("🚀 Bem-vindo ao Editor de Contratos")
+    st.write("Um sistema minimalista e ultra-rápido para edição e personalização de documentos contratuais.")
 
-/* Inputs de texto */
-div.stTextInput > div > input {
-    border: 2px solid #ced4da;
-    border-radius: 4px;
-    padding: 0.75rem;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-}
-div.stTextInput > div > input:focus {
-    border-color: #007bff;
-}
+    # Exibir animação Lottie
+    animation = load_lottiefile("assets/animation.json")
+    if animation:
+        st_lottie(animation, height=200)
+    else:
+        st.info("Animação não encontrada.")
 
-/* Uploader de arquivos */
-div.stFileUploader > div {
-    border: 2px dashed #ced4da;
-    border-radius: 4px;
-    padding: 1rem;
-    background-color: #fff;
-}
+    st.markdown("### ✨ Comece agora mesmo!")
+    st.write("Clique no menu acima para editar um contrato ou saber mais sobre o projeto.")
+    st.button("Ir para o Editor de Contrato", on_click=lambda: st.experimental_set_query_params(page="editor"))
 
-/* Botão primário */
-button[kind="primary"] {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-button[kind="primary"]:hover {
-    background-color: #0056b3;
-    transform: scale(1.02);
-}
+elif page == "editor":
+    # ---- PÁGINA EDITOR DE CONTRATOS ----
+    st.title("✍️ Editor de Contrato")
 
-/* Botão de download */
-div.stDownloadButton > button {
-    background-color: #28a745;
-    color: #fff;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-div.stDownloadButton > button:hover {
-    background-color: #218838;
-    transform: scale(1.02);
-}
-</style>
-"""
-st.markdown(custom_css, unsafe_allow_html=True)
+    uploaded_file = st.file_uploader("Faça o upload do arquivo .docx", type="docx")
 
-# Título do aplicativo
-st.title("Editor de Contrato")
+    if uploaded_file:
+        doc = Document(uploaded_file)
 
-# Carrega e exibe uma animação Lottie (opcional)
-try:
-    lottie_animation = load_lottiefile("animation.json")
-    st_lottie(lottie_animation, height=150)
-except Exception as e:
-    st.info("Animação Lottie não encontrada ou erro ao carregar.")
+        nome_empresa = st.text_input("Nome da Empresa")
+        nome_fornecedor = st.text_input("Nome do Fornecedor")
 
-# Upload do arquivo .docx
-uploaded_file = st.file_uploader("Faça o upload do arquivo .docx", type="docx")
+        if st.button("Gerar Documento"):
+            for para in doc.paragraphs:
+                para.text = para.text.replace("{nome_empresa}", nome_empresa)
+                para.text = para.text.replace("{nome_fornecedor}", nome_fornecedor)
 
-if uploaded_file:
-    doc = Document(uploaded_file)
+            output = BytesIO()
+            doc.save(output)
+            output.seek(0)
 
-    # Campos para entrada de dados
-    nome_empresa = st.text_input("Nome da Empresa")
-    nome_fornecedor = st.text_input("Nome do Fornecedor")
+            st.download_button(
+                label="📥 Baixar Documento Editado",
+                data=output,
+                file_name="contrato_editado.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            )
 
-    if st.button("Gerar Documento"):
-        # Substituição dos placeholders
-        for para in doc.paragraphs:
-            para.text = para.text.replace("{nome_empresa}", nome_empresa)
-            para.text = para.text.replace("{nome_fornecedor}", nome_fornecedor)
+elif page == "sobre":
+    # ---- PÁGINA SOBRE ----
+    st.title("ℹ️ Sobre o Editor de Contratos")
+    st.write("""
+    Este sistema foi desenvolvido para tornar a personalização de contratos mais eficiente e intuitiva.
 
-        # Cria um arquivo .docx em memória
-        output = BytesIO()
-        doc.save(output)
-        output.seek(0)
+    ### 💡 Recursos Principais:
+    - Upload de documentos `.docx`
+    - Edição dinâmica dos campos `{nome_empresa}` e `{nome_fornecedor}`
+    - Download instantâneo do contrato editado
+    - Interface rápida e minimalista inspirada no **Superhuman**
+    """)
 
-        # Botão de download do documento modificado
-        st.download_button(
-            label="Baixar Documento Modificado",
-            data=output,
-            file_name="contrato_editado.docx",
-            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        )
+    st.success("Feito com ❤️ usando Streamlit")
